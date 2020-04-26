@@ -1,5 +1,6 @@
 from nonebot import on_command, CommandSession
 import  requests
+import re
 
 month=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 days=[0,31,28,31,30,31,30,31,31,30,31,30,31]
@@ -9,40 +10,14 @@ start=[]
 length=[]
 
 def get_contest():
+    global name,start,length
     url = 'https://codeforc.es/contests'
     res = requests.get(url)
     string = res.text
-    f=open("test.html","w")
-    f.write(string)
-    f.close()
-    f=open("test.html","r")
-    for i in range(1,495):
-        f.readline()
-    while True:
-        string=f.readline()
-        if string=='<td>\n':
-            string=f.readline()
-        if string=='</tr>\n':
-            f.readline()
-            f.readline()
-            string=f.readline()
-        if string=='</div>\n':
-            break
-        global name,start,length
-        string=string[:len(string)-1]
-        # print(string)
-        name.append(string)
-        f.readline()
-        f.readline()
-        while True:
-            string=f.readline()
-            if string=='</td>\n':
-                break
-        f.readline()
-        f.readline()
-        string=f.readline()
-        string=string[43:]
-        string=string[:len(string)-8]
+    name=re.findall('<tr data-contestId="[0-9][0-9][0-9][0-9]">\n<td>\n(.*?)\n</td>',string)
+    pattern=re.findall('<span class="format-time" data-locale="en">(.*?)</span>\n</a>\n</td>\n<td>\n(.*?)\n</td>',string)
+    for k in pattern:
+        string=k[0]
         h=int(string[12]+string[13])+5
         d=int(string[4]+string[5])
         y=int(string[7]+string[8]+string[9]+string[10])
@@ -78,22 +53,16 @@ def get_contest():
             string=string+'0'+str(mi)
         else:
             string=string+str(mi)
-        # print(string)
         start.append(string)
-        for i in range(1,4):
-            f.readline()
-        string=f.readline()
-        string=string[:len(string)-1]
-        # print(string)
+        string=k[1]
         length.append(string)
-        for i in range(1,11):
-            f.readline()
     return res
 
-@on_command('CF比赛预告', aliases=('CF','CodeForces','cf','codeforces','cf比赛预告','CodeForces比赛预告','codeforces比赛预告','Codeforces比赛预告','Codeforces'))
-async def daily(session: CommandSession):
+@on_command('CF', aliases=('CodeForces','cf','codeforces','Codeforces'))
+async def CodeForces_Report(session: CommandSession):
     get_contest()
-    await session.send('近期CodeForces比赛预告:\n')
+    string='近期 CodeForces 比赛预告:\n------------------\n'
     leng=len(name)
     for i in range(0,leng):
-        await session.send('比赛名称:'+name[i]+' 比赛开始时间:'+start[i]+' 比赛时长:'+length[i]+'\n')
+        string=string+'比赛名称: '+name[i]+'\n比赛开始时间: '+start[i]+'\n比赛时长: '+length[i]+'\n------------------\n'
+    await session.send(string)
