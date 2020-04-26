@@ -11,6 +11,9 @@ length=[]
 
 def get_contest():
     global name,start,length
+    name.clear()
+    start.clear()
+    length.clear()
     url = 'https://codeforc.es/contests'
     res = requests.get(url)
     string = res.text
@@ -58,10 +61,46 @@ def get_contest():
         length.append(string)
     return res
 
+def AT_get_contest():
+    global name,start,length
+    name.clear()
+    start.clear()
+    length.clear()
+    url = 'https://atcoder.jp/'
+    res = requests.get(url)
+    string = res.text
+    pattern=re.findall('<div id="contest-table-upcoming">(.*?)<div id="contest-table-recent">',string,re.S)
+    # print(pattern[0])
+    string=pattern[0]
+    test=re.findall('<time class=\'fixtime fixtime-short\'>(.*?)\+0900</time>',string)
+    pattern=re.findall('<a href=\'/contests/(.*?)\'>(.*?)</a>',string)
+    for i in pattern:
+        url = 'https://atcoder.jp/contests/'+i[0]
+        res = requests.get(url)
+        string = res.text
+        orz=re.findall('\(local time\)\n\t\t\t\t\((.*?)\)',string)
+        length.append(orz[0])
+        name.append(i[1])
+    for i in test:
+        h=int(i[11]+i[12])
+        h=h-1
+        orz=i[0:11]+str(h)+i[13:19]
+        start.append(orz)
+    return res
+
 @on_command('CF', aliases=('CodeForces','cf','codeforces','Codeforces'))
 async def CodeForces_Report(session: CommandSession):
     get_contest()
     string='近期 CodeForces 比赛预告:\n------------------\n'
+    leng=len(name)
+    for i in range(0,leng):
+        string=string+'比赛名称: '+name[i]+'\n比赛开始时间: '+start[i]+'\n比赛时长: '+length[i]+'\n------------------\n'
+    await session.send(string)
+
+@on_command('AT', aliases=('ATCoder','at','atcoder','Atcoder'))
+async def CodeForces_Report(session: CommandSession):
+    AT_get_contest()
+    string='近期 ATCoder 比赛预告:\n------------------\n'
     leng=len(name)
     for i in range(0,leng):
         string=string+'比赛名称: '+name[i]+'\n比赛开始时间: '+start[i]+'\n比赛时长: '+length[i]+'\n------------------\n'
