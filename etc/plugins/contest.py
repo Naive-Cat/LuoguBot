@@ -97,7 +97,7 @@ async def CodeForces_Report(session: CommandSession):
         string=string+'比赛名称: '+name[i]+'\n比赛开始时间: '+start[i]+'\n比赛时长: '+length[i]+'\n------------------\n'
     await session.send(string)
 
-@on_command('AT', aliases=('ATCoder','at','atcoder','Atcoder'))
+@on_command('AT', aliases=('ATCoder','at','atcoder','Atcoder','AtCoder'))
 async def CodeForces_Report(session: CommandSession):
     AT_get_contest()
     string='近期 ATCoder 比赛预告:\n------------------\n'
