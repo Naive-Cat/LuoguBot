@@ -93,15 +93,21 @@ async def CodeForces_Report(session: CommandSession):
     get_contest()
     string='近期 CodeForces 比赛预告:\n------------------\n'
     leng=len(name)
-    for i in range(0,leng):
-        string=string+'比赛名称: '+name[i]+'\n比赛开始时间: '+start[i]+'\n比赛时长: '+length[i]+'\n------------------\n'
+    if leng==0:
+        string=string+'近期无比赛\n'
+    else:
+        for i in range(0,leng):
+            string=string+'比赛名称: '+name[i]+'\n比赛开始时间: '+start[i]+'\n比赛时长: '+length[i]+'\n------------------\n'
     await session.send(string)
 
 @on_command('AT', aliases=('ATCoder','at','atcoder','Atcoder','AtCoder'))
-async def CodeForces_Report(session: CommandSession):
+async def ATCoder_Report(session: CommandSession):
     AT_get_contest()
     string='近期 ATCoder 比赛预告:\n------------------\n'
     leng=len(name)
-    for i in range(0,leng):
-        string=string+'比赛名称: '+name[i]+'\n比赛开始时间: '+start[i]+'\n比赛时长: '+length[i]+'\n------------------\n'
+    if leng==0:
+        string=string+'近期无比赛\n'
+    else:
+        for i in range(0,leng):
+            string=string+'比赛名称: '+name[i]+'\n比赛开始时间: '+start[i]+'\n比赛时长: '+length[i]+'\n------------------\n'
     await session.send(string)
