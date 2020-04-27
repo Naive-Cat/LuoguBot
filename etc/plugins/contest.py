@@ -1,5 +1,7 @@
 from nonebot import on_command, CommandSession
 import  requests
+from urllib import request
+import urllib
 import re
 
 month=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
@@ -8,6 +10,28 @@ days=[0,31,28,31,30,31,30,31,31,30,31,30,31]
 name=[]
 start=[]
 length=[]
+end=[]
+
+headers = {'User-agent':'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36'}
+
+def LG_get_contest():
+    global name,start,length,end
+    name.clear()
+    start.clear()
+    length.clear()
+    end.clear()
+    url = 'https://www.luogu.com.cn/'
+    res = request.Request(url,headers=headers)
+    response = request.urlopen(res)
+    html = response.read().decode('utf-8')
+    string = html
+    pattern=re.findall('<section class="am\-panel lg\-index\-contest am\-panel\-success">\n(.*?)\n</section>',string,re.S)
+    for i in pattern:
+        orz=re.findall('<a data\-pjax href="/contestnew/show/[0-9][0-9][0-9][0-9][0-9]">(.*?)</a>',i)
+        name.append(orz[0])
+        orz=re.findall('<span class="lg\-small lg\-inline\-up lg\-right lg\-md\-hide">\n(.*?)<br>\n(.*?) </span>',i)
+        start.append(orz[0][0])
+        end.append(orz[0][1])
 
 def get_contest():
     global name,start,length
@@ -110,4 +134,16 @@ async def ATCoder_Report(session: CommandSession):
     else:
         for i in range(0,leng):
             string=string+'比赛名称: '+name[i]+'\n比赛开始时间: '+start[i]+'\n比赛时长: '+length[i]+'\n------------------\n'
+    await session.send(string)
+
+@on_command('LGRace', aliases=('LGrace','lgrace','lgRace'))
+async def LG_Report(session: CommandSession):
+    LG_get_contest()
+    string='近期洛谷比赛预告:\n------------------\n'
+    leng=len(name)
+    if leng==0:
+        string=string+'近期无比赛\n'
+    else:
+        for i in range(0,leng):
+            string=string+'比赛名称: '+name[i]+'\n比赛开始时间: '+start[i]+'\n比赛结束时间: '+end[i]+'\n------------------\n'
     await session.send(string)
